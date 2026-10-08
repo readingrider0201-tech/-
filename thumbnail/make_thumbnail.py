@@ -3,10 +3,15 @@
 使い方:
     python3 thumbnail/make_thumbnail.py thumbnail/andante
 
-フォルダ内に 1〜4 の写真（拡張子は jpg/png/webp など何でも可）を置く。
+フォルダ内に 1〜4 の写真（拡張子は jpg/png/webp など何でも可）と config.json を置く。
     1 = 左上 / 2 = 右上 / 3 = 左下 / 4 = 右下
-出力: フォルダ内の thumbnail.png（1280x720）
+config.json の例:
+    {"title": "旅と暮らしの本屋 アンダンテ",
+     "crops": {"2": [0.12, 0.27, 0.853, 1.0]}}
+    crops は写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
+出力: フォルダ内の thumbnail.png（1280x720）。作り直すたびに上書きする
 """
+import json
 import sys
 from pathlib import Path
 
@@ -16,18 +21,9 @@ W, H = 1280, 720
 HERE = Path(__file__).resolve().parent
 FONT = HERE / "fonts" / "NotoSerifJP-Black.ttf"
 
-TITLE = "旅と暮らしの本屋 アンダンテ"
 MAX_FONT = 110
 MAX_TEXT_W = 1160
 BRIGHTNESS = 1.18  # 写真の明るさ（1.0 = 元のまま）
-
-# 写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
-CROPS = {
-    2: (0.12, 0.27, 0.853, 1.0),  # 店内: 天井を切って本棚と平台を大きく
-    3: (0.0, 0.29, 0.60, 0.89),  # 通路: 天井は帯の裏に隠し、「旅」の看板は帯の下に見せる
-    4: (0.10, 0.0, 0.95, 0.85),  # 外観: 左の歩道と足元を削って建物を大きく、看板は帯の下に
-}
-
 
 def find_photo(folder: Path, n: int):
     for p in sorted(folder.glob(f"{n}.*")):
@@ -52,14 +48,18 @@ def placeholder(n: int, w: int, h: int) -> Image.Image:
 
 
 def build(folder: Path) -> Path:
+    config = json.loads((folder / "config.json").read_text(encoding="utf-8"))
+    title = config["title"]
+    crops = {int(k): v for k, v in config.get("crops", {}).items()}
+
     canvas = Image.new("RGB", (W, H))
     cw, ch = W // 2, H // 2
     for i, (x, y) in enumerate([(0, 0), (cw, 0), (0, ch), (cw, ch)], start=1):
         p = find_photo(folder, i)
         if p:
             img = Image.open(p).convert("RGB")
-            if i in CROPS:
-                l, t, r, b = CROPS[i]
+            if i in crops:
+                l, t, r, b = crops[i]
                 img = img.crop((round(l * img.width), round(t * img.height),
                                 round(r * img.width), round(b * img.height)))
             tile = cover(img, cw, ch)
@@ -75,7 +75,7 @@ def build(folder: Path) -> Path:
     size = MAX_FONT
     while True:
         font = ImageFont.truetype(str(FONT), size)
-        l, t, r, b = font.getbbox(TITLE)
+        l, t, r, b = font.getbbox(title)
         if r - l <= MAX_TEXT_W or size <= 40:
             break
         size -= 2
@@ -93,12 +93,12 @@ def build(folder: Path) -> Path:
 
     # ぼかした影で文字を浮かせる
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).text((tx + 5, ty + 6), TITLE, font=font, fill=(0, 0, 0, 230))
+    ImageDraw.Draw(shadow).text((tx + 5, ty + 6), title, font=font, fill=(0, 0, 0, 230))
     shadow = shadow.filter(ImageFilter.GaussianBlur(6))
     canvas = Image.alpha_composite(canvas, shadow)
 
     d = ImageDraw.Draw(canvas)
-    d.text((tx, ty), TITLE, font=font, fill="white",
+    d.text((tx, ty), title, font=font, fill="white",
            stroke_width=2, stroke_fill=(30, 30, 30))
 
     out = folder / "thumbnail.png"
