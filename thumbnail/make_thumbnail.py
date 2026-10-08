@@ -9,7 +9,7 @@ config.json の例:
     {"title": "旅と暮らしの本屋 アンダンテ",
      "crops": {"2": [0.12, 0.27, 0.853, 1.0]}}
     crops は写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
-    0〜1 の外を指定すると写真を縮めて入れ、はみ出した部分はぼかした写真で埋める
+    0〜1 の外を指定すると写真を縮めて入れ、はみ出した部分は写真の上端の色で埋める
 出力: フォルダ内の thumbnail.png（1280x720）。作り直すたびに上書きする
 """
 import json
@@ -42,13 +42,12 @@ def cover(img: Image.Image, w: int, h: int) -> Image.Image:
 
 
 def crop_with_fill(img: Image.Image, box) -> Image.Image:
-    """割合で切り抜く。範囲が写真の外にはみ出した部分は、ぼかした写真で埋める"""
+    """割合で切り抜く。範囲が写真の外にはみ出した部分は、写真の上端の色（店内なら白い天井色）で埋める"""
     l, t, r, b = (round(v * n) for v, n in zip(box, (img.width, img.height) * 2))
     if l >= 0 and t >= 0 and r <= img.width and b <= img.height:
         return img.crop((l, t, r, b))
-    w, h = r - l, b - t
-    bg = cover(img, w, h).filter(ImageFilter.GaussianBlur(40))
-    bg = ImageEnhance.Brightness(bg).enhance(1.05)
+    top = img.crop((0, 0, img.width, max(1, img.height // 50))).resize((1, 1), Image.BOX)
+    bg = Image.new("RGB", (r - l, b - t), top.getpixel((0, 0)))
     bg.paste(img, (-l, -t))
     return bg
 
