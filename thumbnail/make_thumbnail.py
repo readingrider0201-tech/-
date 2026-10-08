@@ -21,6 +21,11 @@ MAX_FONT = 110
 MAX_TEXT_W = 1160
 BRIGHTNESS = 1.18  # 写真の明るさ（1.0 = 元のまま）
 
+# 写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
+CROPS = {
+    4: (0.10, 0.0, 0.95, 0.85),  # 外観: 左の歩道と足元を削って建物を大きく、看板は帯の下に
+}
+
 
 def find_photo(folder: Path, n: int):
     for p in sorted(folder.glob(f"{n}.*")):
@@ -49,7 +54,15 @@ def build(folder: Path) -> Path:
     cw, ch = W // 2, H // 2
     for i, (x, y) in enumerate([(0, 0), (cw, 0), (0, ch), (cw, ch)], start=1):
         p = find_photo(folder, i)
-        tile = cover(Image.open(p).convert("RGB"), cw, ch) if p else placeholder(i, cw, ch)
+        if p:
+            img = Image.open(p).convert("RGB")
+            if i in CROPS:
+                l, t, r, b = CROPS[i]
+                img = img.crop((round(l * img.width), round(t * img.height),
+                                round(r * img.width), round(b * img.height)))
+            tile = cover(img, cw, ch)
+        else:
+            tile = placeholder(i, cw, ch)
         # 参考サムネと同じく少しだけ鮮やかに
         tile = ImageEnhance.Brightness(tile).enhance(BRIGHTNESS)
         tile = ImageEnhance.Color(tile).enhance(1.12)
