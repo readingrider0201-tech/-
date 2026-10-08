@@ -9,6 +9,7 @@ config.json の例:
     {"title": "旅と暮らしの本屋 アンダンテ",
      "crops": {"2": [0.12, 0.27, 0.853, 1.0]}}
     crops は写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
+    0〜1 の外を指定すると写真を縮めて入れ、はみ出した部分は写真の上端の色で埋める
 出力: フォルダ内の thumbnail.png（1280x720）。作り直すたびに上書きする
 """
 import json
@@ -40,6 +41,17 @@ def cover(img: Image.Image, w: int, h: int) -> Image.Image:
     return img.crop((l, t, l + w, t + h))
 
 
+def crop_with_fill(img: Image.Image, box) -> Image.Image:
+    """割合で切り抜く。範囲が写真の外にはみ出した部分は、写真の上端の色（店内なら白い天井色）で埋める"""
+    l, t, r, b = (round(v * n) for v, n in zip(box, (img.width, img.height) * 2))
+    if l >= 0 and t >= 0 and r <= img.width and b <= img.height:
+        return img.crop((l, t, r, b))
+    top = img.crop((0, 0, img.width, max(1, img.height // 50))).resize((1, 1), Image.BOX)
+    bg = Image.new("RGB", (r - l, b - t), top.getpixel((0, 0)))
+    bg.paste(img, (-l, -t))
+    return bg
+
+
 def placeholder(n: int, w: int, h: int) -> Image.Image:
     img = Image.new("RGB", (w, h), (90 + n * 20, 80 + n * 15, 70 + n * 10))
     ImageDraw.Draw(img).text((20, 20), f"PHOTO {n}", fill="white",
@@ -59,9 +71,7 @@ def build(folder: Path) -> Path:
         if p:
             img = Image.open(p).convert("RGB")
             if i in crops:
-                l, t, r, b = crops[i]
-                img = img.crop((round(l * img.width), round(t * img.height),
-                                round(r * img.width), round(b * img.height)))
+                img = crop_with_fill(img, crops[i])
             tile = cover(img, cw, ch)
         else:
             tile = placeholder(i, cw, ch)
