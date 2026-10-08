@@ -19,6 +19,7 @@ FONT = HERE / "fonts" / "NotoSerifJP-Black.ttf"
 TITLE = "旅と暮らしの本屋 アンダンテ"
 MAX_FONT = 110
 MAX_TEXT_W = 1160
+BRIGHTNESS = 1.18  # 写真の明るさ（1.0 = 元のまま）
 
 
 def find_photo(folder: Path, n: int):
@@ -50,6 +51,7 @@ def build(folder: Path) -> Path:
         p = find_photo(folder, i)
         tile = cover(Image.open(p).convert("RGB"), cw, ch) if p else placeholder(i, cw, ch)
         # 参考サムネと同じく少しだけ鮮やかに
+        tile = ImageEnhance.Brightness(tile).enhance(BRIGHTNESS)
         tile = ImageEnhance.Color(tile).enhance(1.12)
         tile = ImageEnhance.Contrast(tile).enhance(1.05)
         canvas.paste(tile, (x, y))
