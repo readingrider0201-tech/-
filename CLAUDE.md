@@ -27,3 +27,8 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
 ### 修正するとき
 - 修正のたびに同じ `thumbnail.png` に上書き保存する（別ファイルを増やさない）
 - 修正したら作業ブランチにコミットしてプッシュし、完成画像をユーザーに送る
+
+### 完成済みサムネイルの文字だけ変えるとき（素材写真がない場合）
+- `thumbnail/<フォルダ名>/` に元画像を `source.png` として置き、`config.json` に `title` と `band`（元の帯の位置: 左, 上, 右, 下 のピクセル）を書く
+- 実行: `python3 thumbnail/retitle.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
+- 見本: `thumbnail/share-lounge-yodoyabashi/`
