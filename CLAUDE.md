@@ -31,4 +31,5 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
 ### 完成済みサムネイルの文字だけ変えるとき（素材写真がない場合）
 - `thumbnail/<フォルダ名>/` に元画像を `source.png` として置き、`config.json` に `title` と `band`（元の帯の位置: 左, 上, 右, 下 のピクセル）を書く
 - 実行: `python3 thumbnail/retitle.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
-- 見本: `thumbnail/share-lounge-yodoyabashi/`
+- 2 行にするときは `title` を `"1行目\n2行目"` にし、`band_height`（帯の高さ、例: 240）を足す
+- 見本: `thumbnail/share-lounge-yodoyabashi/`（2 行）
