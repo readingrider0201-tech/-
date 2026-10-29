@@ -81,7 +81,6 @@ def build() -> Path:
     img.paste(shadow, (0, 0), shadow.filter(ImageFilter.GaussianBlur(6)))
 
     d = ImageDraw.Draw(img)
-    draw_text_centered(d, 70, "OSAKA  ESSAY", 26, ACCENT, 8)
     draw_text_centered(d, 118, "大阪に来て6年。", 84, INK, 4)
     draw_text_centered(d, 230, "大阪の人は優しい", 108, ACCENT, 6)
     d.line([(W / 2 - 60, 385), (W / 2 + 60, 385)], fill=INK, width=3)
