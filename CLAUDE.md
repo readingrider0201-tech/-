@@ -33,3 +33,11 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
 - 実行: `python3 thumbnail/retitle.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
 - 2 行にするときは `title` を `"1行目\n2行目"` にし、`band_height`（帯の高さ、例: 240）を足す
 - 見本: `thumbnail/share-lounge-yodoyabashi/`（2 行）
+
+## note（ブログ記事）
+
+- アカウント: 読書ライダー https://note.com/readingrider
+- 見出し画像は記事ごとに `note/<記事の英字名>/` フォルダを作り、`make_header.py` で `header.png`（1280×670）を作る
+  - フォントはサムネイルと同じ `thumbnail/fonts/NotoSerifJP-Black.ttf`
+  - 修正のたびに同じ `header.png` に上書きし、コミットしてプッシュ、完成画像をユーザーに送る
+- 見本: `note/osaka-6years/`（【大阪に来て6年。大阪の人は優しい】）
