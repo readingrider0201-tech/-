@@ -33,3 +33,9 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
 - 実行: `python3 thumbnail/retitle.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
 - 2 行にするときは `title` を `"1行目\n2行目"` にし、`band_height`（帯の高さ、例: 240）を足す
 - 見本: `thumbnail/share-lounge-yodoyabashi/`（2 行）
+
+## ライブ配信のサムネイル
+- 写真 1 枚の左上に LIVE マーク（赤い輪＋再生ボタン＋「LIVE」）を入れ、明るさと色味を見本の写真に合わせる
+- `thumbnail/<フォルダ名>/` に `photo.jpg`、見本写真 `reference.jpg`（前回のライブ配信サムネの写真部分）、`config.json`（`{"reference": "reference.jpg"}`）を置く
+- 実行: `python3 thumbnail/live_mark.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
+- 見本: `thumbnail/live-2026-10/`
