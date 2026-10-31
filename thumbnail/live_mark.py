@@ -6,6 +6,7 @@
 フォルダに次を置く。
     photo.jpg（png/webp も可）: 元の写真
     config.json : {"brightness": 185}   # 仕上がりの平均の明るさ（0〜255）。省略すると明るさはそのまま
+                  {"reference": "reference.jpg"}  # 見本写真と同じ明るさ・色味にする（brightness より優先）
 出力: フォルダ内の thumbnail.png（作り直すたびに上書きする）
 """
 import json
@@ -34,6 +35,19 @@ def match_brightness(img: Image.Image, target: float) -> Image.Image:
     return Image.fromarray((a ** g * 255).round().astype(np.uint8))
 
 
+def match_colors(img: Image.Image, ref: Image.Image) -> Image.Image:
+    """色ごとの明るさの分布を見本写真に合わせる（明るさと色味を両方そろえる）"""
+    a = np.asarray(img)
+    r = np.asarray(ref.convert("RGB"))
+    out = np.empty_like(a)
+    for c in range(3):
+        src_cdf = np.cumsum(np.bincount(a[..., c].ravel(), minlength=256)) / a[..., c].size
+        ref_cdf = np.cumsum(np.bincount(r[..., c].ravel(), minlength=256)) / r[..., c].size
+        lut = np.interp(src_cdf, ref_cdf, np.arange(256))
+        out[..., c] = lut[a[..., c]].round().astype(np.uint8)
+    return Image.fromarray(out)
+
+
 def draw_live_mark(img: Image.Image) -> Image.Image:
     """見本サムネ（横幅 1080 px 基準）と同じ位置・大きさで LIVE マークを描く"""
     s = img.width / 1080
@@ -60,7 +74,9 @@ def build(folder: Path) -> Path:
     config = json.loads((folder / "config.json").read_text(encoding="utf-8"))
     photo = next(p for p in sorted(folder.glob("photo.*")) if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"})
     img = Image.open(photo).convert("RGB")
-    if "brightness" in config:
+    if "reference" in config:
+        img = match_colors(img, Image.open(folder / config["reference"]))
+    elif "brightness" in config:
         img = match_brightness(img, config["brightness"])
     out = folder / "thumbnail.png"
     draw_live_mark(img).save(out, optimize=True)
