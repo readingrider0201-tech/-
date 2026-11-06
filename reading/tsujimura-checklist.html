@@ -65,13 +65,18 @@ td.num, th.num { width: 2.5em; text-align: right; font-variant-numeric: tabular-
 td.date, th.date { width: 5em; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); }
 tr.new td { font-weight: 700; }
 tr.new td.num { color: var(--done); }
+.book.done .tag.del { visibility: visible; }
+.add { display: flex; flex-wrap: wrap; gap: 6px; }
+.add input { flex: 1 1 140px; min-width: 0; font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); }
+.add input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.add-btn { color: var(--accent); border-color: var(--accent); padding: 6px 14px; }
 .status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
 </style>
 <div class="wrap" id="root"><p class="note">読み込み中…</p></div>
 <script type="application/json" id="state">{"books":[
-{"id":"order-made","title":"オーダーメイド殺人クラブ","kind":"長編","week":0,"done":null,"reading":true},
-{"id":"tsunagu2","title":"ツナグ 想い人の心得","kind":"連作短編","week":0,"done":null,"reading":false},
+{"id":"order-made","title":"オーダーメイド殺人クラブ","kind":"長編","week":0,"done":null,"reading":false},
+{"id":"tsunagu2","title":"ツナグ 想い人の心得","kind":"連作短編","week":0,"done":null,"reading":true},
 {"id":"hikari","title":"光待つ場所へ","kind":"短編集","week":1,"done":null,"reading":false,"memo":"『冷たい校舎』『スロウハイツ』の人物が登場"},
 {"id":"fuchinashi","title":"ふちなしのかがみ","kind":"短編集","week":1,"done":null,"reading":false},
 {"id":"taiyo","title":"太陽の坐る場所","kind":"長編","week":2,"done":null,"reading":false},
@@ -88,6 +93,8 @@ tr.new td.num { color: var(--done); }
 {"id":"kaikan2","title":"東京會舘とわたし 下","kind":"連作短編","week":6,"done":null,"reading":false},
 {"id":"kohaku","title":"琥珀の夏","kind":"長編","week":7,"done":null,"reading":false},
 {"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","week":7,"done":null,"reading":false,"memo":"合間に少しずつ"}
+],"others":[
+{"id":"o1","title":"春までのセンセイ","author":"早見和真","done":null}
 ]}</script>
 <script id="app">
 (function () {
@@ -95,7 +102,7 @@ tr.new td.num { color: var(--done); }
   var START = new Date(2026, 10, 6); // 11/6 (Fri) week 1 start
   var WEEKS = 8;
   var state = JSON.parse(document.getElementById("state").textContent);
-  var art = null, readOnly = false, timer = null;
+  var art = null, readOnly = false, timer = null, pendingDel = null;
   var root = document.getElementById("root");
 
   function weekStart(w) { var d = new Date(START); d.setDate(d.getDate() + w * 7); return d; }
@@ -132,6 +139,15 @@ tr.new td.num { color: var(--done); }
       '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + (READ.length + books.length) + '" aria-valuenow="' + (READ.length + done) + '"><i style="width:' + ((READ.length + done) / (READ.length + books.length) * 100).toFixed(1) + '%"></i></div>' +
       '<p class="note">残り ' + (books.length - done) + ' 冊。週2冊＋エッセイは合間に。併読で忙しい週は、短編集やエッセイと入れ替えてOK。</p>' +
       '<p class="status" id="status">' + esc(statusText || "") + '</p></header>';
+    var others = state.others || [];
+    html += '<section class="week" id="side"><div class="week-head"><h2>併読中の本</h2><span>完全制覇の数には入れない</span></div><ul>' +
+      others.map(function (o) {
+        return '<li class="book' + (o.done ? ' done' : '') + '">' +
+          '<button class="check" id="oc-' + o.id + '" data-act="odone" data-id="' + o.id + '" aria-pressed="' + (!!o.done) + '" aria-label="' + esc(o.title) + 'を読了にする">✓</button>' +
+          '<div class="info"><span class="title">' + esc(o.title) + '</span><span class="meta">' + esc((o.author || '著者なし') + (o.done ? '・' + o.done + ' 読了' : '')) + '</span></div>' +
+          '<button class="tag del" id="od-' + o.id + '" data-act="odel" data-id="' + o.id + '">' + (pendingDel === o.id ? 'もう一度で消す' : '消す') + '</button></li>';
+      }).join("") +
+      '</ul><form class="add" id="add-form"><input id="add-title" placeholder="本のタイトル" required maxlength="80" aria-label="本のタイトル"><input id="add-author" placeholder="著者（なくてもOK）" maxlength="40" aria-label="著者"><button class="tag add-btn" type="submit">追加</button></form></section>';
     for (var w = 0; w < WEEKS; w++) {
       var wb = books.filter(function (b) { return b.week === w; });
       var wd = wb.filter(function (b) { return b.done; }).length;
@@ -186,6 +202,18 @@ tr.new td.num { color: var(--done); }
   root.addEventListener("click", function (ev) {
     var btn = ev.target.closest("button[data-act]");
     if (!btn) return;
+    var act = btn.getAttribute("data-act"), oid = btn.getAttribute("data-id");
+    if (act === "odone" || act === "odel") {
+      var o = (state.others || []).filter(function (x) { return x.id === oid; })[0];
+      if (!o) return;
+      if (act === "odone") {
+        var d = today(); o.done = o.done ? null : (d.getMonth() + 1) + "/" + d.getDate(); pendingDel = null; save();
+      } else if (pendingDel === oid) {
+        state.others = state.others.filter(function (x) { return x.id !== oid; }); pendingDel = null; save();
+      } else { pendingDel = oid; render(); }
+      return;
+    }
+    pendingDel = null;
     var b = find(btn.getAttribute("data-id"));
     if (!b) return;
     if (btn.getAttribute("data-act") === "done") {
@@ -200,6 +228,17 @@ tr.new td.num { color: var(--done); }
       state.books.forEach(function (x) { x.reading = false; });
       b.reading = on;
     }
+    save();
+  });
+
+  root.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var t = document.getElementById("add-title").value.trim();
+    if (!t) return;
+    var a = document.getElementById("add-author").value.trim();
+    state.others = state.others || [];
+    state.others.push({ id: "o" + Date.now().toString(36), title: t, author: a, done: null });
+    pendingDel = null;
     save();
   });
 
