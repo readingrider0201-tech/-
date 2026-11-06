@@ -1,0 +1,200 @@
+<title>辻村深月 完全制覇</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style id="page-style">
+/* Layout: one narrow reading column — header with progress, then week-by-week shelves */
+:root {
+  --bg: #F3F5F8; --surface: #FFFFFF; --fg: #1A2140; --muted: #5C6479;
+  --line: #D8DDE7; --accent: #2D47B0; --accent-soft: #E3E8FA;
+  --done: #2F7A57; --warn: #B4561F;
+  --display: "Zen Old Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1322; --surface: #161D31; --fg: #E5E9F3; --muted: #9AA3B9;
+  --line: #2A3349; --accent: #93A8FF; --accent-soft: #232D52;
+  --done: #6CC598; --warn: #F0A06A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1322; --surface: #161D31; --fg: #E5E9F3; --muted: #9AA3B9;
+  --line: #2A3349; --accent: #93A8FF; --accent-soft: #232D52;
+  --done: #6CC598; --warn: #F0A06A; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 640px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-direction: column; gap: 12px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 900; font-size: 30px; line-height: 1.25; margin: 0; text-wrap: balance; }
+.stats { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.count { font-family: var(--display); font-weight: 900; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.count small { font-size: 18px; color: var(--muted); font-weight: 700; }
+.pill { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.ok { color: var(--done); } .pill.late { color: var(--warn); }
+.bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); transition: width .4s ease; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+section.week { display: flex; flex-direction: column; gap: 8px; }
+.week-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.week-head h2 { font-family: var(--display); font-weight: 700; font-size: 17px; margin: 0; }
+.week-head span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.week.now .week-head { border-bottom-color: var(--accent); }
+.week.now .week-head h2::after { content: "今週"; font-family: var(--body); font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft); padding: 1px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 2px; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.book { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.book.reading { border-color: var(--accent); }
+.check { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0; color: transparent; font-size: 16px; font-weight: 700; }
+.check:focus-visible, .tag:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.book.done .check { background: var(--done); border-color: var(--done); color: var(--surface); }
+.info { min-width: 0; display: flex; flex-direction: column; }
+.title { font-weight: 700; font-size: 16px; }
+.book.done .title { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.meta { font-size: 12px; color: var(--muted); }
+.tag { font: inherit; font-size: 12px; font-weight: 700; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 3px 10px; cursor: pointer; white-space: nowrap; }
+.book.reading .tag { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.book.done .tag { visibility: hidden; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-size: 16px; }
+.read-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.read-list span { font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
+.status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+<div class="wrap" id="root"><p class="note">読み込み中…</p></div>
+<script type="application/json" id="state">{"books":[
+{"id":"order-made","title":"オーダーメイド殺人クラブ","kind":"長編","week":0,"done":null,"reading":true},
+{"id":"tsunagu2","title":"ツナグ 想い人の心得","kind":"連作短編","week":0,"done":null,"reading":false},
+{"id":"hikari","title":"光待つ場所へ","kind":"短編集","week":1,"done":null,"reading":false,"memo":"『冷たい校舎』『スロウハイツ』の人物が登場"},
+{"id":"fuchinashi","title":"ふちなしのかがみ","kind":"短編集","week":1,"done":null,"reading":false},
+{"id":"taiyo","title":"太陽の坐る場所","kind":"長編","week":2,"done":null,"reading":false},
+{"id":"zero-hachi","title":"ゼロ、ハチ、ゼロ、ナナ。","kind":"長編","week":2,"done":null,"reading":false},
+{"id":"minasoko","title":"水底フェスタ","kind":"長編","week":3,"done":null,"reading":false},
+{"id":"kinou","title":"きのうの影踏み","kind":"短編集","week":3,"done":null,"reading":false},
+{"id":"haken","title":"ハケンアニメ！","kind":"長編","week":4,"done":null,"reading":false},
+{"id":"legend","title":"レジェンドアニメ！","kind":"短編集","week":4,"done":null,"reading":false,"memo":"『ハケンアニメ！』のあとに"},
+{"id":"kazoku","title":"家族シアター","kind":"短編集","week":5,"done":null,"reading":false},
+{"id":"doraemon","title":"小説 映画ドラえもん のび太の月面探査記","kind":"長編","week":5,"done":null,"reading":false},
+{"id":"kaikan1","title":"東京會舘とわたし 上","kind":"連作短編","week":6,"done":null,"reading":false},
+{"id":"kaikan2","title":"東京會舘とわたし 下","kind":"連作短編","week":6,"done":null,"reading":false},
+{"id":"kohaku","title":"琥珀の夏","kind":"長編","week":7,"done":null,"reading":false}
+],"extras":[
+{"id":"toshoshitsu","title":"図書室で暮らしたい","kind":"エッセイ","done":null},
+{"id":"neokaru","title":"ネオカル日和","kind":"エッセイ","done":null},
+{"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","done":null}
+]}</script>
+<script id="app">
+(function () {
+  var READ = ["傲慢と善良","かがみの孤城","凍りのくじら","この夏の星を見る","スロウハイツの神様","島はぼくらと","冷たい校舎の時は止まる","子どもたちは夜と遊ぶ","ぼくのメジャースプーン","闇祓","朝が来る","鍵のない夢を見る","嘘つきジェンガ","ツナグ","V.T.R.","噛み合わない会話と、ある過去について","盲目的な恋と友情","青空と逃げる","本日は大安なり","サクラ咲く","ファイアドーム","名前探しの放課後","ロードムービー"];
+  var START = new Date(2026, 10, 6); // 11/6 (Fri) week 1 start
+  var WEEKS = 8;
+  var state = JSON.parse(document.getElementById("state").textContent);
+  var art = null, readOnly = false, timer = null;
+  var root = document.getElementById("root");
+
+  function weekStart(w) { var d = new Date(START); d.setDate(d.getDate() + w * 7); return d; }
+  function weekEnd(w) { var d = weekStart(w); d.setDate(d.getDate() + (w === WEEKS - 1 ? 7 : 6)); return d; }
+  function md(d) { return (d.getMonth() + 1) + "/" + d.getDate(); }
+  function today() { var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function currentWeek() {
+    var t = today();
+    for (var w = 0; w < WEEKS; w++) { if (t >= weekStart(w) && t <= weekEnd(w)) return w; }
+    return t < START ? -1 : WEEKS;
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function bookRow(b, extra) {
+    var cls = "book" + (b.done ? " done" : "") + (b.reading && !b.done ? " reading" : "");
+    var meta = b.kind + (b.memo ? "・" + b.memo : "") + (b.done ? "・" + b.done + " 読了" : "");
+    return '<li class="' + cls + '">' +
+      '<button class="check" id="c-' + b.id + '" data-act="done" data-id="' + b.id + '" aria-pressed="' + (!!b.done) + '" aria-label="' + esc(b.title) + 'を読了にする">✓</button>' +
+      '<div class="info"><span class="title">' + esc(b.title) + '</span><span class="meta">' + esc(meta) + '</span></div>' +
+      (extra ? '<span></span>' : '<button class="tag" id="r-' + b.id + '" data-act="reading" data-id="' + b.id + '">' + (b.reading ? "読書中" : "読む") + '</button>') +
+      '</li>';
+  }
+
+  function render(statusText) {
+    var books = state.books, cw = currentWeek();
+    var done = books.filter(function (b) { return b.done; }).length;
+    var expected = books.filter(function (b) { return b.week < cw; }).length;
+    var behind = expected - done;
+    var pill = behind > 0
+      ? '<span class="pill late">' + behind + '冊おくれ</span>'
+      : '<span class="pill ok">' + (done === books.length ? "完全制覇！" : "予定どおり") + '</span>';
+    var html = '<header><span class="eyebrow">2026年内に完全制覇</span><h1>辻村深月 完全制覇</h1>' +
+      '<div class="stats"><span class="count">' + (READ.length + done) + '<small> / ' + (READ.length + books.length) + ' 作</small></span>' + pill + '</div>' +
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + (READ.length + books.length) + '" aria-valuenow="' + (READ.length + done) + '"><i style="width:' + ((READ.length + done) / (READ.length + books.length) * 100).toFixed(1) + '%"></i></div>' +
+      '<p class="note">残り ' + (books.length - done) + ' 冊。週2冊ペース。併読で忙しい週は、短編集と入れ替えてOK。</p>' +
+      '<p class="status" id="status">' + esc(statusText || "") + '</p></header>';
+    for (var w = 0; w < WEEKS; w++) {
+      var wb = books.filter(function (b) { return b.week === w; });
+      var wd = wb.filter(function (b) { return b.done; }).length;
+      html += '<section class="week' + (w === cw ? " now" : "") + '"><div class="week-head"><h2>' + (w + 1) + '週目</h2><span>' + md(weekStart(w)) + '〜' + md(weekEnd(w)) + '・' + wd + '/' + wb.length + '</span></div><ul>' +
+        wb.map(function (b) { return bookRow(b); }).join("") + '</ul></section>';
+    }
+    html += '<section class="week"><div class="week-head"><h2>おまけ：エッセイ</h2><span>数に入れない</span></div><ul>' +
+      state.extras.map(function (b) { return bookRow(b, true); }).join("") + '</ul></section>';
+    html += '<details><summary>読了済み ' + READ.length + ' 作</summary><div class="read-list">' +
+      READ.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div></details>';
+    root.innerHTML = html;
+  }
+
+  function find(id) {
+    return state.books.concat(state.extras).filter(function (b) { return b.id === id; })[0];
+  }
+
+  function buildDoc() {
+    var reset = (document.head.querySelector("style") || {}).textContent || "";
+    var json = JSON.stringify(state).replace(/</g, "\\u003c");
+    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' + reset + '</style></head><body>' +
+      '<title>辻村深月 完全制覇</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n' +
+      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">\n' +
+      document.getElementById("page-style").outerHTML + '\n<div class="wrap" id="root"><p class="note">読み込み中…</p></div>\n' +
+      '<script type="application/json" id="state">' + json + '<\/script>\n' +
+      document.getElementById("app").outerHTML + '\n</body></html>';
+  }
+
+  function save() {
+    clearTimeout(timer);
+    if (!art || readOnly) {
+      try { localStorage.setItem("tsujimura-state", JSON.stringify(state)); } catch (e) {}
+      render(readOnly ? "このページは閲覧専用のため、この端末にだけ保存しました" : "この端末に保存しました");
+      return;
+    }
+    render("保存中…");
+    timer = setTimeout(function () {
+      art.publish(buildDoc()).catch(function (e) {
+        var code = e && e.code;
+        if (code === "conflict") return;
+        if (code === "not_writer" || code === "not_granted") readOnly = true;
+        try { localStorage.setItem("tsujimura-state", JSON.stringify(state)); } catch (x) {}
+        render(readOnly ? "閲覧専用のため、この端末にだけ保存しました" : "保存できませんでした。もう一度チェックしてください");
+      });
+    }, 1200);
+  }
+
+  root.addEventListener("click", function (ev) {
+    var btn = ev.target.closest("button[data-act]");
+    if (!btn) return;
+    var b = find(btn.getAttribute("data-id"));
+    if (!b) return;
+    if (btn.getAttribute("data-act") === "done") {
+      if (b.done) { b.done = null; }
+      else { var t = today(); b.done = (t.getMonth() + 1) + "/" + t.getDate(); b.reading = false; }
+    } else {
+      var on = !b.reading;
+      state.books.forEach(function (x) { x.reading = false; });
+      b.reading = on;
+    }
+    save();
+  });
+
+  render();
+  if (window.claude && window.claude.use) {
+    window.claude.use("artifact").then(function (a) {
+      art = a;
+      if (!a) {
+        try { var s = localStorage.getItem("tsujimura-state"); if (s) { state = JSON.parse(s); render(); } } catch (e) {}
+      }
+    });
+  }
+})();
+</script>
