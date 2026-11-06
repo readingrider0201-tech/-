@@ -56,6 +56,15 @@ details { border-top: 1px solid var(--line); padding-top: 12px; }
 summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-size: 16px; }
 .read-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
 .read-list span { font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+tbody tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .08em; }
+td.num, th.num { width: 2.5em; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+td.date, th.date { width: 5em; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); }
+tr.new td { font-weight: 700; }
+tr.new td.num { color: var(--done); }
 .status { font-size: 12px; color: var(--muted); min-height: 1.2em; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
 </style>
@@ -67,19 +76,18 @@ summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-s
 {"id":"fuchinashi","title":"ふちなしのかがみ","kind":"短編集","week":1,"done":null,"reading":false},
 {"id":"taiyo","title":"太陽の坐る場所","kind":"長編","week":2,"done":null,"reading":false},
 {"id":"zero-hachi","title":"ゼロ、ハチ、ゼロ、ナナ。","kind":"長編","week":2,"done":null,"reading":false},
+{"id":"toshoshitsu","title":"図書室で暮らしたい","kind":"エッセイ","week":2,"done":null,"reading":false,"memo":"合間に少しずつ"},
 {"id":"minasoko","title":"水底フェスタ","kind":"長編","week":3,"done":null,"reading":false},
 {"id":"kinou","title":"きのうの影踏み","kind":"短編集","week":3,"done":null,"reading":false},
 {"id":"haken","title":"ハケンアニメ！","kind":"長編","week":4,"done":null,"reading":false},
 {"id":"legend","title":"レジェンドアニメ！","kind":"短編集","week":4,"done":null,"reading":false,"memo":"『ハケンアニメ！』のあとに"},
 {"id":"kazoku","title":"家族シアター","kind":"短編集","week":5,"done":null,"reading":false},
 {"id":"doraemon","title":"小説 映画ドラえもん のび太の月面探査記","kind":"長編","week":5,"done":null,"reading":false},
+{"id":"neokaru","title":"ネオカル日和","kind":"エッセイ","week":5,"done":null,"reading":false,"memo":"合間に少しずつ"},
 {"id":"kaikan1","title":"東京會舘とわたし 上","kind":"連作短編","week":6,"done":null,"reading":false},
 {"id":"kaikan2","title":"東京會舘とわたし 下","kind":"連作短編","week":6,"done":null,"reading":false},
-{"id":"kohaku","title":"琥珀の夏","kind":"長編","week":7,"done":null,"reading":false}
-],"extras":[
-{"id":"toshoshitsu","title":"図書室で暮らしたい","kind":"エッセイ","done":null},
-{"id":"neokaru","title":"ネオカル日和","kind":"エッセイ","done":null},
-{"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","done":null}
+{"id":"kohaku","title":"琥珀の夏","kind":"長編","week":7,"done":null,"reading":false},
+{"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","week":7,"done":null,"reading":false,"memo":"合間に少しずつ"}
 ]}</script>
 <script id="app">
 (function () {
@@ -122,7 +130,7 @@ summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-s
     var html = '<header><span class="eyebrow">2026年内に完全制覇</span><h1>辻村深月 完全制覇</h1>' +
       '<div class="stats"><span class="count">' + (READ.length + done) + '<small> / ' + (READ.length + books.length) + ' 作</small></span>' + pill + '</div>' +
       '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + (READ.length + books.length) + '" aria-valuenow="' + (READ.length + done) + '"><i style="width:' + ((READ.length + done) / (READ.length + books.length) * 100).toFixed(1) + '%"></i></div>' +
-      '<p class="note">残り ' + (books.length - done) + ' 冊。週2冊ペース。併読で忙しい週は、短編集と入れ替えてOK。</p>' +
+      '<p class="note">残り ' + (books.length - done) + ' 冊。週2冊＋エッセイは合間に。併読で忙しい週は、短編集やエッセイと入れ替えてOK。</p>' +
       '<p class="status" id="status">' + esc(statusText || "") + '</p></header>';
     for (var w = 0; w < WEEKS; w++) {
       var wb = books.filter(function (b) { return b.week === w; });
@@ -130,15 +138,19 @@ summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-s
       html += '<section class="week' + (w === cw ? " now" : "") + '"><div class="week-head"><h2>' + (w + 1) + '週目</h2><span>' + md(weekStart(w)) + '〜' + md(weekEnd(w)) + '・' + wd + '/' + wb.length + '</span></div><ul>' +
         wb.map(function (b) { return bookRow(b); }).join("") + '</ul></section>';
     }
-    html += '<section class="week"><div class="week-head"><h2>おまけ：エッセイ</h2><span>数に入れない</span></div><ul>' +
-      state.extras.map(function (b) { return bookRow(b, true); }).join("") + '</ul></section>';
-    html += '<details><summary>読了済み ' + READ.length + ' 作</summary><div class="read-list">' +
-      READ.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div></details>';
+    var log = READ.map(function (t) { return { title: t, date: "—" }; }).concat(
+      books.filter(function (b) { return b.done; })
+        .sort(function (a, b) { return (a.order || 0) - (b.order || 0); })
+        .map(function (b) { return { title: b.title, date: b.done, isNew: true }; }));
+    html += '<section class="week" id="log"><div class="week-head"><h2>読んだ順</h2><span>' + log.length + ' 作</span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th class="num">順</th><th>タイトル</th><th class="date">読了日</th></tr></thead><tbody>' +
+      log.map(function (r, i) { return '<tr' + (r.isNew ? ' class="new"' : '') + '><td class="num">' + (i + 1) + '</td><td>' + esc(r.title) + '</td><td class="date">' + esc(r.date) + '</td></tr>'; }).join("") +
+      '</tbody></table></div><p class="note">1〜23 は最初に教えてもらった順番です。24 からは、チェックした順に自動で増えていきます。</p></section>';
     root.innerHTML = html;
   }
 
   function find(id) {
-    return state.books.concat(state.extras).filter(function (b) { return b.id === id; })[0];
+    return state.books.filter(function (b) { return b.id === id; })[0];
   }
 
   function buildDoc() {
@@ -177,8 +189,12 @@ summary { cursor: pointer; font-family: var(--display); font-weight: 700; font-s
     var b = find(btn.getAttribute("data-id"));
     if (!b) return;
     if (btn.getAttribute("data-act") === "done") {
-      if (b.done) { b.done = null; }
-      else { var t = today(); b.done = (t.getMonth() + 1) + "/" + t.getDate(); b.reading = false; }
+      if (b.done) { b.done = null; delete b.order; }
+      else {
+        var t = today(), max = 0;
+        state.books.forEach(function (x) { if (x.order > max) max = x.order; });
+        b.done = (t.getMonth() + 1) + "/" + t.getDate(); b.order = max + 1; b.reading = false;
+      }
     } else {
       var on = !b.reading;
       state.books.forEach(function (x) { x.reading = false; });
