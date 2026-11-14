@@ -81,18 +81,18 @@ tr.new td.num { color: var(--done); }
 {"id":"fuchinashi","title":"ふちなしのかがみ","kind":"短編集","week":1,"done":null,"reading":false},
 {"id":"taiyo","title":"太陽の坐る場所","kind":"長編","week":2,"done":null,"reading":false},
 {"id":"zero-hachi","title":"ゼロ、ハチ、ゼロ、ナナ。","kind":"長編","week":2,"done":null,"reading":false},
-{"id":"toshoshitsu","title":"図書室で暮らしたい","kind":"エッセイ","week":2,"done":null,"reading":false,"memo":"合間に少しずつ"},
+{"id":"toshoshitsu","title":"図書室で暮らしたい","kind":"エッセイ","week":2,"done":null,"reading":false,"memo":"併読 11/14〜26"},
 {"id":"minasoko","title":"水底フェスタ","kind":"長編","week":3,"done":null,"reading":false},
 {"id":"kinou","title":"きのうの影踏み","kind":"短編集","week":3,"done":null,"reading":false},
 {"id":"haken","title":"ハケンアニメ！","kind":"長編","week":4,"done":null,"reading":false},
 {"id":"legend","title":"レジェンドアニメ！","kind":"短編集","week":4,"done":null,"reading":false,"memo":"『ハケンアニメ！』のあとに"},
 {"id":"kazoku","title":"家族シアター","kind":"短編集","week":5,"done":null,"reading":false},
 {"id":"doraemon","title":"小説 映画ドラえもん のび太の月面探査記","kind":"長編","week":5,"done":null,"reading":false},
-{"id":"neokaru","title":"ネオカル日和","kind":"エッセイ","week":5,"done":null,"reading":false,"memo":"合間に少しずつ"},
+{"id":"neokaru","title":"ネオカル日和","kind":"エッセイ","week":4,"done":null,"reading":false,"memo":"併読 11/27〜12/10"},
 {"id":"kaikan1","title":"東京會舘とわたし 上","kind":"連作短編","week":6,"done":null,"reading":false},
 {"id":"kaikan2","title":"東京會舘とわたし 下","kind":"連作短編","week":6,"done":null,"reading":false},
 {"id":"kohaku","title":"琥珀の夏","kind":"長編","week":7,"done":null,"reading":false},
-{"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","week":7,"done":null,"reading":false,"memo":"合間に少しずつ"}
+{"id":"anatano","title":"あなたの言葉を","kind":"エッセイ","week":6,"done":null,"reading":false,"memo":"併読 12/11〜24"}
 ],"others":[
 {"id":"o1","title":"春までのセンセイ","author":"早見和真","done":null}
 ]}</script>
@@ -137,7 +137,7 @@ tr.new td.num { color: var(--done); }
     var html = '<header><span class="eyebrow">2026年内に完全制覇</span><h1>辻村深月 完全制覇</h1>' +
       '<div class="stats"><span class="count">' + (READ.length + done) + '<small> / ' + (READ.length + books.length) + ' 作</small></span>' + pill + '</div>' +
       '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + (READ.length + books.length) + '" aria-valuenow="' + (READ.length + done) + '"><i style="width:' + ((READ.length + done) / (READ.length + books.length) * 100).toFixed(1) + '%"></i></div>' +
-      '<p class="note">残り ' + (books.length - done) + ' 冊。週2冊＋エッセイは合間に。併読で忙しい週は、短編集やエッセイと入れ替えてOK。</p>' +
+      '<p class="note">残り ' + (books.length - done) + ' 冊。小説は週2冊、エッセイは小説と並行して約2週間で1冊。</p>' +
       '<p class="status" id="status">' + esc(statusText || "") + '</p></header>';
     var others = state.others || [];
     html += '<section class="week" id="side"><div class="week-head"><h2>併読中の本</h2><span>完全制覇の数には入れない</span></div><ul>' +
