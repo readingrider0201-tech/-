@@ -39,3 +39,9 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
 - `thumbnail/<フォルダ名>/` に `photo.jpg`、見本写真 `reference.jpg`（前回のライブ配信サムネの写真部分）、`config.json`（`{"reference": "reference.jpg"}`）を置く
 - 実行: `python3 thumbnail/live_mark.py thumbnail/<フォルダ名>` → `thumbnail.png`（上書き）
 - 見本: `thumbnail/live-2026-10/`
+
+## ZINE の原稿
+- 原稿は `zine/` に Markdown で置く（1冊目: `バイクで四国一周読書旅_原稿.md`、2冊目: `バイクでさんふらわあ九州読書旅_原稿.md`）
+- 文体は 1冊目に合わせる（だ・である調、「本屋さん」）
+- 記号: 【　】= 事実を入れるところ / 【仮：〜】= 想像で書いた描写 / 【メモ：〜】= 書く内容のヒント
+- 2冊目は旅（2027年1月）のあと、`zine/九州読書旅_旅メモ.md` と動画をもとに埋める
