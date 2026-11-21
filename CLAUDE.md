@@ -11,6 +11,7 @@ vlog のサムネイルを頼まれたら、毎回この方法で作る。
   - `config.json`: `title`（真ん中の文字）と、必要なら `crops`（写真ごとの切り抜き範囲）
 - 実行: `python3 thumbnail/make_thumbnail.py thumbnail/<フォルダ名>` → 同じフォルダに `thumbnail.png`（1280×720）
 - 見本: `thumbnail/andante/`（旅と暮らしの本屋 アンダンテ）
+- 写真が 3 枚のときは `config.json` に `"layout": 3` を足す → 1 = 左（縦いっぱい） / 2 = 右上 / 3 = 右下。見本: `thumbnail/bunfree-tokyo43/`
 
 ### デザイン（参考サムネと同じスタイル）
 - 4 分割の写真グリッド、写真は少し明るく（明るさ 1.18 倍）

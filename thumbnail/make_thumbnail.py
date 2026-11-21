@@ -10,6 +10,7 @@ config.json の例:
      "crops": {"2": [0.12, 0.27, 0.853, 1.0]}}
     crops は写真ごとの切り抜き範囲（元画像に対する割合: 左, 上, 右, 下）。指定なしは中央基準
     0〜1 の外を指定すると写真を縮めて入れ、はみ出した部分は写真の上端の色で埋める
+    写真が 3 枚のときは "layout": 3 を足す → 1 = 左（縦長いっぱい） / 2 = 右上 / 3 = 右下
 出力: フォルダ内の thumbnail.png（1280x720）。作り直すたびに上書きする
 """
 import json
@@ -66,15 +67,19 @@ def build(folder: Path) -> Path:
 
     canvas = Image.new("RGB", (W, H))
     cw, ch = W // 2, H // 2
-    for i, (x, y) in enumerate([(0, 0), (cw, 0), (0, ch), (cw, ch)], start=1):
+    if config.get("layout") == 3:
+        cells = [(0, 0, cw, H), (cw, 0, cw, ch), (cw, ch, cw, ch)]
+    else:
+        cells = [(0, 0, cw, ch), (cw, 0, cw, ch), (0, ch, cw, ch), (cw, ch, cw, ch)]
+    for i, (x, y, w, h) in enumerate(cells, start=1):
         p = find_photo(folder, i)
         if p:
             img = Image.open(p).convert("RGB")
             if i in crops:
                 img = crop_with_fill(img, crops[i])
-            tile = cover(img, cw, ch)
+            tile = cover(img, w, h)
         else:
-            tile = placeholder(i, cw, ch)
+            tile = placeholder(i, w, h)
         # 参考サムネと同じく少しだけ鮮やかに
         tile = ImageEnhance.Brightness(tile).enhance(BRIGHTNESS)
         tile = ImageEnhance.Color(tile).enhance(1.12)
